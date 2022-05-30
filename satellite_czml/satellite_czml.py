@@ -147,7 +147,7 @@ class satellite():
             else:
                 self.czmlMarker = Point(show=True,
                                         color=color,
-                                        pixelSize=10,
+                                        pixelSize=5,
                                         outlineColor=outlineColor,
                                         outlineWidth=outlineWidth)
         return self.czmlMarker
@@ -167,7 +167,7 @@ class satellite():
         Creates the satellite label
         '''
         if self.czmlLabel is None or rebuild:
-            self.czmlLabel = Label(text=self.name, show=show or self.show_label)
+            self.czmlLabel = Label(text=self.id, show=show or self.show_label)
             self.czmlLabel.fillColor = {"rgba": color or self.color}
             self.czmlLabel.font = font
             self.czmlLabel.horizontalOrigin = hOrigin
@@ -216,7 +216,7 @@ class satellite():
                        interpolationDegree = 5,
                        referenceFrame = "INERTIAL",
                        tle_object=None,
-                       step=300,
+                       step=300, #second
                        rebuild=False):
         '''
         Creates the satellite positions and settings
@@ -379,13 +379,25 @@ class SatelliteCzml():
                  name_list=None, description_list=None, color_list=None, image_list=None,
                  use_default_image=True, marker_scale_list=None, speed_multiplier=None,
                  show_label=True, show_path=True, use_utc=True, seed=None,
-                 ignore_bad_tles=False):
+                 ignore_bad_tles=False,
+                 use_color_orbit=True,orb_num=None,sat_num=None): #addtional
         '''
         Initialize satellite_czml object
         '''
 
+
         # Set the seed now before we generate colors
         self.set_seed(seed)
+
+        # Set sat in the same orbit as the same color
+        if use_color_orbit and orb_num and sat_num:
+            color_list=[]
+
+            for orb in range(orb_num):
+
+                color = [random.randrange(256) for x in range(3)]
+                colors = [color]* sat_num
+                color_list+=colors
 
         # Set speed multiplier
         self.set_speed_multiplier(speed_multiplier)
@@ -418,8 +430,7 @@ class SatelliteCzml():
             for i,tle in enumerate(tle_list):
                 try:
                     sat = satellite(tle=tle,
-                                    # name=name_list[i],
-                                    name = tle[0],
+                                    name=name_list[i],
                                     description=description_list[i],
                                     color=color_list[i],
                                     image=image_list[i],
