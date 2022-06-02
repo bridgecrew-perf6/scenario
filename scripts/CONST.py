@@ -9,13 +9,22 @@ from satgen import generate_tles_from_scratch_manual as args2tles
 from utils.tool import json2dict,dict2json,to_csv,read_csv
 from satellite_czml import SatelliteCzml
 from utils.tool import readtles,list_filter
+
+parent = {
+        "id":"SATs",
+        "name":"SATs",
+        "description":"collection of SAT"
+}
+parent_str = "SATs"
+
+
 def main(args):
     yml = YamlHandler(args.settings)
     config = yml.read_yaml()
     dump_path = Path(config["dump_path"])
     constellation = config['constellation']
 
-    tle_file_path = dump_path/(constellation['name']+".txt")
+    tle_file_path = dump_path/(constellation['name']+"_tle.txt")
     args2tles(
         filename_out=tle_file_path,
         constellation_name=constellation['name'],
@@ -35,16 +44,24 @@ def main(args):
                               orb_num=constellation['num_orbits'],
                               sat_num=constellation['num_sats_per_orbit'])
 
-    print("GENERATES CONSTELLATION...")
-    print("--> duration:{} ->{}".format(datetime.datetime(y,m,d),datetime.datetime(y,m,d+1)))
+    print("\nGENERATES CONSTELLATION...")
+    print("--> duration:{} ->{}".format(datetime.datetime(*config['start_time']),datetime.datetime(*config['end_time'])))
     print("--> satellites number of orbit:{}, sat_per_orb:{}, inclination_degree:{}".format(
         constellation['num_orbits'],constellation['num_sats_per_orbit'],constellation['inclination_degree']))
 
-    print("--> dump path:\n \t{}\n\t{}/{}.czml".format(tle_file_path,dump_path,constellation['name']))
+    print("--> dump path:\n \t{}\n\t{}/{}_const.czml".format(tle_file_path,dump_path,constellation['name']))
     czmls = container.get_czml()
-
-    with open(dump_path/"{}.czml".format(constellation['name']), "w") as f:
+    with open(dump_path/"{}_const.czml".format(constellation['name']), "w") as f:
         f.write(czmls)
+
+
+    # add parent item for better management
+    const_list = json2dict(dump_path/"{}_const.czml".format(constellation['name']))
+    for item in const_list:
+        if item["id"]!="document":
+            item["parent"] = parent_str
+    const_list.insert(1,parent)
+    dict2json(dump_path/"{}_const.czml".format(constellation['name']),const_list)
 
 
 

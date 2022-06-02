@@ -9,24 +9,28 @@ from satgen import generate_tles_from_scratch_manual as args2tles
 from utils.tool import json2dict,dict2json,to_csv,read_csv
 from satellite_czml import SatelliteCzml
 from utils.tool import readtles,list_filter
-from utils.formatter import dict2frame
+from utils.formatter import getCoord
 import numpy as np
-
+parent = {
+        "id":"ISLs",
+        "name":"ISLs",
+        "description":"collection of ISL"
+      }
+parent_str = "ISLs"
 class ISL:
     def __init__(self,id,name,description,ref):
 
         self.template = {
         "id":"none",
         "name":"none",
-        "availability":[
-          "2022-05-27T10:14:19.663460+00:00/2022-05-28T10:14:19.663460+00:00"
-        ],
-        "description":"none",
+        "parent":"ISLs",
+        "availability":None,
+        "description":None,
         "polyline":{
           "show":[
 
             {
-              "interval":"2022-05-27T10:14:19.663460+00:00/2022-05-28T10:14:19.663460+00:00",
+              "interval":None,
               "boolean":True
             }
 
@@ -59,6 +63,11 @@ class ISL:
         self.template["name"] = name
         self.template["description"] = description
         self.template["polyline"]["positions"]["references"] = ref
+    def setTime(self,start_time,end_time):
+        interval = start_time.isoformat() + "/" + end_time.isoformat()
+
+        self.template["availability"]=[interval]
+        self.template["polyline"]["show"][0]["interval"] = interval
     def get_item(self):
         return self.template
 
@@ -82,9 +91,6 @@ def LoS(sat_id,num_orbit,num_sat):
 def last_duration():
 
     return  [20,50]
-def isSameV(sat1,sat2,duration):
-
-    pass
 
 positions={}
 def distance(sat1,sat2,duration):
@@ -110,17 +116,25 @@ def main(args):
     global positions
     yml = YamlHandler(args.settings)
     config = yml.read_yaml()
+    dump_path = Path(config["dump_path"])
     constellation = config['constellation']
     num_orbit= constellation['num_orbits']
     num_sat = constellation['num_sats_per_orbit']
-    file = "../tmp/{}.czml".format(constellation['name'])
-    czml = json2dict(file)
+
+    start_time = datetime.datetime(*config["start_time"])
+    end_time = datetime.datetime(*config["end_time"])
+
+    print("\nGENERATES ISLs...")
+    inFile = Path(dump_path)/"{}_const.czml".format(constellation['name'])
+
+
+    czml = json2dict(inFile)
     czml_dict={}
     for item in czml:
-        if item['id'] == 'document':
+        if item['id'] == 'document' or 'collection'in item['description']:
             continue
         czml_dict[item['id']] = item
-    positions = dict2frame(czml_dict)
+    positions = getCoord(czml_dict)
 
     sats = list(positions.keys())
 
@@ -132,8 +146,8 @@ def main(args):
                 continue
             adj_mat.add((sat, adj_sat))
 
-    czml_format=[]
-
+    ISLs_list=[]
+    ISLs_list.append(parent)
 
     for (sati,satj) in adj_mat:
         name = "ISL-{}-{}".format(sati,satj)
@@ -142,12 +156,13 @@ def main(args):
         ref = ["{}#position".format(sati),"{}#position".format(satj)]
 
         isl = ISL(name=name,id=id,description=description,ref=ref)
+        isl.setTime(start_time,end_time)
+        ISLs_list.append(isl.get_item())
 
-        czml_format.append(isl.get_item())
+    dump_file = "{}_isl.czml".format(constellation["name"])
+    dict2json(dump_path/dump_file,ISLs_list)
+    print("--> at {}/{}".format(dump_path,dump_file))
 
-
-    dict2json("../tmp/tmp.czml",czml_format)
-    print('isl ok')
 
 
 

@@ -1379,6 +1379,7 @@ class CZMLPacket(_CZMLBaseObject):
     # A pyramid. A pyramid starts at a point or apex and extends in a
     # specified list of directions from the apex. Each pair of directions
     # forms a face of the pyramid. The pyramid may be capped at a radial limit.
+
     pyramid = None
 
     # A camera.
@@ -1652,6 +1653,10 @@ class CZMLPacket(_CZMLBaseObject):
             self._cone = None
         else:
             raise TypeError
+
+
+
+
 
     def data(self):
         d = {}

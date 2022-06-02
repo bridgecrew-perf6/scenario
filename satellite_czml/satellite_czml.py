@@ -12,49 +12,7 @@ import pytz
 import random
 import math
 from tqdm import tqdm
-class satellite2():
-    template = {
-        "id": None,
-        "name": None,
-        "availability": None,
-        "description": None,
-        "polyline": {
-            "show": [
 
-                {
-                    "interval": None,
-                    "boolean": True
-                }
-
-            ],
-            "width": 10,
-            "material": {
-                "polylineGlow": {
-                    " glowPower": 0.2,
-                    "taperPower": 1,
-                    "color": {
-                        "rgba": [
-                            0,
-                            255,
-                            255,
-                            255
-                        ]
-                    }
-                }
-            },
-            "arcType": "NONE",
-            "positions": {
-                "references": [
-                    "none", "none"
-                ]
-            }
-        }
-    }
-
-    def __init__(self,tle, name=None, description=None, color=None, image=None,
-                 marker_scale=None, use_default_image=True, start_time=None, end_time=None,
-                 show_label=True, show_path=True):
-        pass
 
 class satellite():
     '''
@@ -584,8 +542,8 @@ class SatelliteCzml():
                 sat_packet.label = sat.build_label()
                 sat_packet.path = sat.build_path()
                 sat_packet.position = sat.build_position()
-
                 doc.packets.append(sat_packet)
+
             except Exception as e:
                 if not self.ignore_bad_tles:
                     raise Exception(f'Failed to generate CZML for satellite ID {id}: {sat.name}\nError:\n{e}')

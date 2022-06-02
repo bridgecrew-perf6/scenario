@@ -1,5 +1,5 @@
 import numpy as np
-def dict2frame(czml_dict):
+def getCoord(czml_dict):
     frame = {}
     for k,v in czml_dict.items():
         positions = v['position']['cartesian']
