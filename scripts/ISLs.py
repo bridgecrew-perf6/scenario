@@ -12,16 +12,16 @@ from utils.tool import readtles,list_filter
 from utils.formatter import dict2frame
 import numpy as np
 
-class Access:
-    def __init__(self):
+class ISL:
+    def __init__(self,id,name,description,ref):
 
-        self.meta = {
+        self.template = {
         "id":"none",
-        "name":"AGI to ISS",
+        "name":"none",
         "availability":[
           "2022-05-27T10:14:19.663460+00:00/2022-05-28T10:14:19.663460+00:00"
         ],
-        "description":"access",
+        "description":"none",
         "polyline":{
           "show":[
 
@@ -33,11 +33,18 @@ class Access:
           ],
           "width":10,
           "material":{
-            "polylineArrow":{
-              "color":{
-                "rgba":[148, 0, 211, 255]
+              "polylineGlow": {
+                  " glowPower": 0.2,
+                  "taperPower": 1,
+                  "color": {
+                      "rgba": [
+                          0,
+                          255,
+                          255,
+                          255
+                      ]
+                  }
               }
-            }
           },
           "arcType":"NONE",
           "positions":{
@@ -47,12 +54,13 @@ class Access:
           }
         }
       }
-    def set_id(self,id):
-        self.meta["id"] = id
-    def set_refs(self,refs):
-        self.meta["polyline"]["positions"]["references"] = refs
+
+        self.template["id"] = id
+        self.template["name"] = name
+        self.template["description"] = description
+        self.template["polyline"]["positions"]["references"] = ref
     def get_item(self):
-        return self.meta
+        return self.template
 
 def LoS(sat_id,num_orbit,num_sat):
     los =[]
@@ -72,7 +80,6 @@ def LoS(sat_id,num_orbit,num_sat):
 
     return  los
 def last_duration():
-    # return [300*12,300*36]
 
     return  [20,50]
 def isSameV(sat1,sat2,duration):
@@ -126,23 +133,21 @@ def main(args):
             adj_mat.add((sat, adj_sat))
 
     czml_format=[]
-    # for i in range(len(adj_mat)):
-    #     czml_format.append(ISL_templates.copy())
-    # for (sati,satj),idx in zip(adj_mat,range(len(adj_mat))):
-    #     czml_format[idx]["id"] =
-    #     czml_format[idx]["polyline"]["positions"]["references"]=[].copy()
-    #     czml_format[idx]["polyline"]["positions"]["references"].append()
-    #     czml_format[idx]["polyline"]["positions"]["references"].append("{}#position".format(satj))
+
 
     for (sati,satj) in adj_mat:
-        acc = Access()
-        acc.set_id("ISL-{}-{}".format(sati,satj))
-        acc.set_refs(["{}#position".format(sati),"{}#position".format(satj)])
-        czml_format.append(acc.get_item())
+        name = "ISL-{}-{}".format(sati,satj)
+        id = "ISL-{}-{}".format(sati,satj)
+        description = "ISL-{}-{}".format(sati,satj)
+        ref = ["{}#position".format(sati),"{}#position".format(satj)]
+
+        isl = ISL(name=name,id=id,description=description,ref=ref)
+
+        czml_format.append(isl.get_item())
 
 
-    dict2json("tmp.czml",czml_format)
-    print('ok')
+    dict2json("../tmp/tmp.czml",czml_format)
+    print('isl ok')
 
 
 

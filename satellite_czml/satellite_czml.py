@@ -11,6 +11,50 @@ from datetime import datetime, timedelta
 import pytz
 import random
 import math
+from tqdm import tqdm
+class satellite2():
+    template = {
+        "id": None,
+        "name": None,
+        "availability": None,
+        "description": None,
+        "polyline": {
+            "show": [
+
+                {
+                    "interval": None,
+                    "boolean": True
+                }
+
+            ],
+            "width": 10,
+            "material": {
+                "polylineGlow": {
+                    " glowPower": 0.2,
+                    "taperPower": 1,
+                    "color": {
+                        "rgba": [
+                            0,
+                            255,
+                            255,
+                            255
+                        ]
+                    }
+                }
+            },
+            "arcType": "NONE",
+            "positions": {
+                "references": [
+                    "none", "none"
+                ]
+            }
+        }
+    }
+
+    def __init__(self,tle, name=None, description=None, color=None, image=None,
+                 marker_scale=None, use_default_image=True, start_time=None, end_time=None,
+                 show_label=True, show_path=True):
+        pass
 
 class satellite():
     '''
@@ -63,7 +107,9 @@ class satellite():
         if description is not None:
             self.description = description
         else:
-            self.description = 'Orbit of Satellite: ' + self.name
+            # self.description = 'Orbit of Satellite: ' + self.name
+            self.description = self.id
+
 
         self.color = self.__check_color(color)
         self.show_label = show_label
@@ -360,6 +406,7 @@ class satellite():
             sp_interval = (sp_start.isoformat() + '/' + sp_end.isoformat())
         return trail_times
 
+
 class SatelliteCzml():
     '''
     Generates the CZML document used by Cesium for plotting Satellites
@@ -520,9 +567,8 @@ class SatelliteCzml():
                         "range": "LOOP_STOP",
                         "step": "SYSTEM_CLOCK_MULTIPLIER"}
         doc.packets.append(packet)
-
         # Add each satellite
-        for id, sat in self.satellites.items():
+        for id, sat in tqdm(self.satellites.items()):
             # Initialize satellite CZML data
             try:
                 sat_packet = CZMLPacket(id=id)

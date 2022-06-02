@@ -12,9 +12,10 @@ from utils.tool import readtles,list_filter
 def main(args):
     yml = YamlHandler(args.settings)
     config = yml.read_yaml()
+    dump_path = Path(config["dump_path"])
     constellation = config['constellation']
 
-    tle_file_path = Path("../tmp")/(constellation['name']+".txt")
+    tle_file_path = dump_path/(constellation['name']+".txt")
     args2tles(
         filename_out=tle_file_path,
         constellation_name=constellation['name'],
@@ -28,18 +29,22 @@ def main(args):
     )
 
     lines = readtles(tle_file_path)
-
     container = SatelliteCzml(tle_list=lines,
+                              start_time= datetime.datetime(*config['start_time']),
+                              end_time=datetime.datetime(*config['end_time']),
                               orb_num=constellation['num_orbits'],
                               sat_num=constellation['num_sats_per_orbit'])
 
+    print("GENERATES CONSTELLATION...")
+    print("--> duration:{} ->{}".format(datetime.datetime(y,m,d),datetime.datetime(y,m,d+1)))
+    print("--> satellites number of orbit:{}, sat_per_orb:{}, inclination_degree:{}".format(
+        constellation['num_orbits'],constellation['num_sats_per_orbit'],constellation['inclination_degree']))
 
-
-
+    print("--> dump path:\n \t{}\n\t{}/{}.czml".format(tle_file_path,dump_path,constellation['name']))
     czmls = container.get_czml()
-    with open("../tmp/{}.czml".format(constellation['name']), "w") as f:
+
+    with open(dump_path/"{}.czml".format(constellation['name']), "w") as f:
         f.write(czmls)
-    print('ok')
 
 
 
