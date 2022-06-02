@@ -1,6 +1,6 @@
 
 
-dump_path: "/home/roit/datasets/cesiumData/files"
+dump_path: "/home/roit/datasets/cesiumData/3-3"
 
 start_time: [2000,1,1]
 end_time: [2000,1,2]
@@ -8,8 +8,8 @@ end_time: [2000,1,2]
 constellation:
 
   name: "lite"
-  num_orbits: 2
-  num_sats_per_orbit: 2
+  num_orbits: 12
+  num_sats_per_orbit: 12
   inclination_degree: 53
   phase_diff: true
   eccentricity: 0.0000001

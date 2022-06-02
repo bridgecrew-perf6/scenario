@@ -23,7 +23,7 @@ def main(args):
     isl = json2dict(dump_path/"{}_isl.czml".format(name))
     fwd = json2dict(dump_path/"{}_fwd.czml".format(name))
 
-    sum = const+fwd[1:6]
+    sum = const+isl+fwd
     dict2json(dump_path/"{}.czml".format(name),sum)
     print("--> at {}/{}.czml".format(dump_path,name))
 

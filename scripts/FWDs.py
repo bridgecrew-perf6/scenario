@@ -96,26 +96,29 @@ def main(args):
         czml_dict[item['id']] = item
     FWDs =[]
     FWDs.append(parent)
+    id_set = set()
     for item in czml_list:
 
         if item['id'][0:3]=="ISL" and item['id'][0:4]!='ISLs':
             sati = item['id'][4:9]
             satj = item['id'][10:15]
-            ref = ["{}#position".format(sati), "{}#position".format(satj)]
             fwd_id = "FWD-{}-{}".format(sati,satj)
             print(fwd_id)
-
-            fwd = Forwarding(id=fwd_id, description= fwd_id,ref=ref,name=fwd_id)
-            fwd.setTime(start_time,end_time)
-            FWDs.append(fwd.get_item())
+            if fwd_id not in id_set:
+                ref = ["{}#position".format(sati), "{}#position".format(satj)]
+                fwd = Forwarding(id=fwd_id, description= fwd_id,ref=ref,name=fwd_id)
+                fwd.setTime(start_time,end_time)
+                FWDs.append(fwd.get_item())
 
 
             fwd_id = "FWD-{}-{}".format(satj,sati)
-            ref = ["{}#position".format(satj), "{}#position".format(sati)]
-            fwd = Forwarding(id=fwd_id, description=fwd_id, ref=ref, name=fwd_id)
-            fwd.setTime(start_time, end_time)
-            FWDs.append(fwd.get_item())
-            print(fwd_id)
+            if fwd_id not in id_set:
+
+                ref = ["{}#position".format(satj), "{}#position".format(sati)]
+                fwd = Forwarding(id=fwd_id, description=fwd_id, ref=ref, name=fwd_id)
+                fwd.setTime(start_time, end_time)
+                FWDs.append(fwd.get_item())
+                print(fwd_id)
 
     dump_file = "{}_fwd.czml".format(constellation["name"])
     dict2json(dump_path/dump_file,FWDs)
