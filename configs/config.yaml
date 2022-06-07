@@ -1,16 +1,16 @@
 
 
-dump_path: "/home/roit/datasets/cesiumData/12-12-6-15-53-4isl"
+dump_path: "/home/roit/datasets/cesiumData/36-21-18-15-53-4isl"
 
 start_time: [2000,1,1]
 end_time: [2000,1,2]
-
+num_ISL: 4
 constellation:
 
   name: "lite"
-  num_orbits: 12
-  num_sats_per_orbit: 12
-  phase_factor: 6
+  num_orbits: 36
+  num_sats_per_orbit: 21
+  phase_factor: 18
   eccentricity: 0.0000001
 #seed satellite
 satellite:

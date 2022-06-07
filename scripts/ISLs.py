@@ -98,13 +98,51 @@ class ISL:
     def get_item(self):
         return self.template
 
-def LoS(sat_id,num_orbit,num_sat):
+
+
+def sameOrbitSats(sat_id,num_orbit,num_sat):
+    same_orbit_sats=[]
+    sat = int(sat_id[3:5])
+    orbit= int(sat_id[1:3])
+    shell=0
+
+    sats = [(sat - 1) % num_sat, (sat + 1) % num_sat]
+    orbits = [orbit]
+
+    for orb in orbits:
+        for sat in sats:
+            tmp = "{}{:02d}{:02d}".format(shell, orb, sat)
+            same_orbit_sats.append(tmp)
+
+
+    return same_orbit_sats
+
+
+def sideSats(sat_id,num_orbit,num_sat):
+    side_sats=[]
+    orbit = int(sat_id[1:3])
+    shell = 0
+    sats = list(range(0, num_sat))
+    # sats = [(sat-1)%num_sat,sat,(sat+1)%num_sat]
+
+    orbits = [(orbit - 1) % num_orbit,  (orbit + 1) % num_orbit]
+    for orb in orbits:
+        for sat in sats:
+            tmp = "{}{:02d}{:02d}".format(shell, orb, sat)
+            side_sats.append(tmp)
+
+    return side_sats
+
+
+def cadidate_sats(sat_id,num_orbit,num_sat):
+    "based on name search, only works for 0 phase factor constellation"
     los =[]
     shell = sat_id[0]
     orbit= int(sat_id[1:3])
     sat = int(sat_id[3:5])
 
-    sats = [(sat-1)%num_sat,sat,(sat+1)%num_sat]
+    # sats = [(sat-1)%num_sat,sat,(sat+1)%num_sat]
+    sats = list(range(0,num_sat))
     orbits = [(orbit-1)%num_orbit,orbit,(orbit+1)%num_orbit]
     for orb in orbits:
         for sat in sats:
@@ -112,9 +150,11 @@ def LoS(sat_id,num_orbit,num_sat):
             if tmp !=sat_id:
                 los.append(tmp)
 
-
-
     return  los
+
+def LoS_rel(sat_id):
+    pass
+
 def last_duration():
 
     return  [20,50]
@@ -128,33 +168,33 @@ def distance(sat1,sat2,duration):
     return avg_dis
 
 
-def makeISLs(sat,num_orbit,num_sat):
+def makeISLs(sat,num_orbit,num_sat,num_ISLs):
     duration = last_duration()
-    satsInLoS = LoS(sat, num_orbit, num_sat)
+
+
+    same_orbit_sats = sameOrbitSats(sat,num_orbit,num_sat)
+    side_sats = sideSats(sat,num_orbit,num_sat)
+
 
     dises ={}
-    for adj in satsInLoS:
+    for adj in side_sats:
         dises[adj] = distance(sat,adj,duration)
     adjs = sorted(dises, key=lambda k: dises[k])
 
-
-    # for i in range(len(ret)):
-    #     if not notInterSide(sat,ret[i]):
-    #         ret[i] = 'none'
-    # while 'none' in ret:
-    #     ret.remove('none')
-
-    ret = crossed(sat,adjs)
-    # ret = adjs[:2]
-    return ret
+    if num_ISLs ==4:
+        return same_orbit_sats+adjs[:2]
+    elif num_ISLs ==6:
+        return same_orbit_sats+adjs[:4]
 
 def crossed(sat,adjs):
+    "based on name search, only works for 0 phase factor constellation"
     mask =[]
 
     for item in adjs:
         # same orbit
         if sat[1:3] == item[1:3]:
             mask.append(True)
+        #nearly side link
         elif sat[-2:] ==item[-2:]:
             mask.append(True)
         else:
@@ -188,6 +228,7 @@ def main(args):
     constellation = config['constellation']
     num_orbit= constellation['num_orbits']
     num_sat = constellation['num_sats_per_orbit']
+    num_ISLs = config['num_ISLs']
 
     start_time = datetime.datetime(*config["start_time"])
     end_time = datetime.datetime(*config["end_time"])
@@ -207,7 +248,7 @@ def main(args):
 
     adj_mat=set()
     for sat in sats:
-        ISLs = makeISLs(sat,num_orbit,num_sat)
+        ISLs = makeISLs(sat,num_orbit,num_sat,num_ISLs)
         for adj_sat in ISLs:
             if (sat,adj_sat) in adj_mat or (adj_sat,sat) in adj_mat:
                 continue
