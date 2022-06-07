@@ -11,11 +11,13 @@ from satellite_czml import SatelliteCzml
 from utils.tool import readtles,list_filter
 from utils.formatter import getCoord
 import numpy as np
-parent = {
+FWDs_template = {
         "id":"FWDs",
         "name":"FWDs",
-        "description":"collection of FWD"
-      }
+        "description":"collection of FWD",
+        "parent": "root"
+
+}
 class Forwarding:
     def __init__(self,id,name,description,ref):
 
@@ -95,7 +97,7 @@ def main(args):
             continue
         czml_dict[item['id']] = item
     FWDs =[]
-    FWDs.append(parent)
+    FWDs.append(FWDs_template)
     id_set = set()
     for item in czml_list:
 
@@ -103,7 +105,6 @@ def main(args):
             sati = item['id'][4:9]
             satj = item['id'][10:15]
             fwd_id = "FWD-{}-{}".format(sati,satj)
-            print(fwd_id)
             if fwd_id not in id_set:
                 ref = ["{}#position".format(sati), "{}#position".format(satj)]
                 fwd = Forwarding(id=fwd_id, description= fwd_id,ref=ref,name=fwd_id)
@@ -118,7 +119,6 @@ def main(args):
                 fwd = Forwarding(id=fwd_id, description=fwd_id, ref=ref, name=fwd_id)
                 fwd.setTime(start_time, end_time)
                 FWDs.append(fwd.get_item())
-                print(fwd_id)
 
     dump_file = "{}_fwd.czml".format(constellation["name"])
     dict2json(dump_path/dump_file,FWDs)
