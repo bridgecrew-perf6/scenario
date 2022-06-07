@@ -18,17 +18,17 @@ ISLs_template = {
         "parent":"root"
       }
 InterOrbitLinks_template = {
-    "id": "InterOrbitLink",
-    "name": "InterOrbitLink",
+    "id": "InterOrbitLinks",
+    "name": "InterOrbitLinks",
     "description": "collection of InterOrbitLinks",
     "parent": "ISLs"
 
 }
 IntraOrbitLinks_template={
+    "parent": "ISLs",
     "id": "IntraOrbitLinks",
     "name": "IntraOrbitLinks",
     "description": "collection of IntraOrbitLinks",
-    "parent": "ISLs"
 }
 
 class ISL:
@@ -227,7 +227,7 @@ def main(args):
         ref = ["{}#position".format(sati),"{}#position".format(satj)]
 
         isl = ISL(name=name,id=id,description=description,ref=ref)
-        if isIntraOrbit(sati,satj):
+        if not isIntraOrbit(sati,satj):
             isl.setLine()
             isl.setParent()
         isl.setTime(start_time,end_time)
