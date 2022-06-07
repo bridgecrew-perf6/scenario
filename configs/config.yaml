@@ -1,6 +1,6 @@
 
 
-dump_path: "/home/roit/datasets/cesiumData/3-3"
+dump_path: "/home/roit/datasets/cesiumData/12-12-6-15-53-4isl"
 
 start_time: [2000,1,1]
 end_time: [2000,1,2]
@@ -10,11 +10,15 @@ constellation:
   name: "lite"
   num_orbits: 12
   num_sats_per_orbit: 12
-  inclination_degree: 53
-  phase_diff: true
+  phase_factor: 6
   eccentricity: 0.0000001
-  arg_of_perigee_degree: 0.0
-  mean_motion_rev_per_day: 13.66
+#seed satellite
+satellite:
+  mean_motion_rev_per_day: 15.2202
+  inclination_degree: 53
+  perigee_degree: 268.4266
+  mean_anomaly_degree: 91.5750
+  raan: 0
 
 
 

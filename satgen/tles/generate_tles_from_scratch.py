@@ -136,11 +136,10 @@ def generate_tles_from_scratch_manual(
         constellation_name,
         num_orbits,
         num_sats_per_orbit,
-        phase_diff,
-        inclination_degree,
+        phase_factor,
         eccentricity,
-        arg_of_perigee_degree,
-        mean_motion_rev_per_day
+        seed_satellite
+
 ):
 
     with open(filename_out, "w+") as f_out:
@@ -159,19 +158,25 @@ def generate_tles_from_scratch_manual(
         # <TLE line 2>
         satellite_counter = 0
         shell_num = 0
+
+
+        inclination_degree=seed_satellite['inclination_degree']             # 星座卫星统一
+        mean_motion_rev_per_day = seed_satellite['mean_motion_rev_per_day'] # 星座卫星统一
+        perigee_degree = seed_satellite['perigee_degree']                   #星座卫星统一
+        raan = seed_satellite['raan']
+        mean_anomaly_degree = seed_satellite['mean_anomaly_degree']
         for orbit in range(0, num_orbits):
 
             # Orbit-dependent
-            raan_degree = orbit * 360.0 / num_orbits
-            orbit_wise_shift = 0
-            if orbit % 2 == 1:
-                if phase_diff:
-                    orbit_wise_shift = 360.0 / (num_sats_per_orbit * 2.0)
+            this_raan = orbit * 360.0 / num_orbits +raan
+            # if orbit % 2 == 1:
+            #     if phase_diff:
+            orbit_wise_shift = 360.0 / (num_sats_per_orbit * num_orbits) *phase_factor
 
             # For each satellite in the orbit
             for n_sat in range(0, num_sats_per_orbit):
-                mean_anomaly_degree = orbit_wise_shift + (n_sat * 360 / num_sats_per_orbit)
-
+                this_mean_anomaly_degree = orbit*orbit_wise_shift + mean_anomaly_degree +(n_sat * 360 / num_sats_per_orbit)
+                this_mean_anomaly_degree%=360
                 # Epoch is 2000-01-01 00:00:00, which is 00001 in ddyyy format
                 # See also: https://www.celestrak.com/columns/v04n03/#FAQ04
                 id_str = "{}{:02d}{:02d}".format(shell_num,orbit,n_sat)
@@ -180,10 +185,10 @@ def generate_tles_from_scratch_manual(
                 tle_line2 = "2 %s %s %s %s %s %s %s    0" % (
                     id_str,
                     ("%3.4f" % inclination_degree).rjust(8),
-                    ("%3.4f" % raan_degree).rjust(8),
+                    ("%3.4f" % this_raan).rjust(8),
                     ("%0.7f" % eccentricity)[2:],
-                    ("%3.4f" % arg_of_perigee_degree).rjust(8),
-                    ("%3.4f" % mean_anomaly_degree).rjust(8),
+                    ("%3.4f" % perigee_degree).rjust(8),
+                    ("%3.4f" % this_mean_anomaly_degree).rjust(8),
                     ("%2.8f" % mean_motion_rev_per_day).rjust(11),
                 )
 
