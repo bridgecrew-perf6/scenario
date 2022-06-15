@@ -14,3 +14,6 @@ def getCoord(czml_dict):
     return frame
 
 
+def tle2description(tle):
+    temp = "<!--HTML--> <ul> <li>{}</li> <li>{}</li> </ul>".format(tle[0][1:],tle[1][1:])
+    return temp

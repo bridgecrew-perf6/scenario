@@ -12,7 +12,7 @@ import pytz
 import random
 import math
 from tqdm import tqdm
-
+from utils.formatter import tle2description
 
 class satellite():
     '''
@@ -66,7 +66,9 @@ class satellite():
             self.description = description
         else:
             # self.description = 'Orbit of Satellite: ' + self.name
-            self.description = self.id
+            # self.description = self.id
+            self.description = tle2description(self.tle)
+
 
 
         self.color = self.__check_color(color)
@@ -437,6 +439,7 @@ class SatelliteCzml():
                     sat = satellite(tle=tle,
                                     name=name_list[i],
                                     description=description_list[i],
+                                    # description=tle2description(tle),
                                     color=color_list[i],
                                     image=image_list[i],
                                     marker_scale=marker_scale_list[i],
