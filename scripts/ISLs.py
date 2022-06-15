@@ -11,6 +11,12 @@ from satellite_czml import SatelliteCzml
 from utils.tool import readtles,list_filter
 from utils.formatter import getCoord
 import numpy as np
+
+document_template ={
+        "id": "document",
+        "version": "1.0"
+    }
+
 ISLs_template = {
         "id":"ISLs",
         "name":"ISLs",
@@ -255,6 +261,7 @@ def main(args):
             adj_mat.add((sat, adj_sat))
 
     ISLs_list=[]
+    ISLs_list.append(document_template)
     ISLs_list.append(ISLs_template)
     ISLs_list.append(IntraOrbitLinks_template)
     ISLs_list.append(InterOrbitLinks_template)

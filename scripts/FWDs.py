@@ -11,6 +11,12 @@ from satellite_czml import SatelliteCzml
 from utils.tool import readtles,list_filter
 from utils.formatter import getCoord
 import numpy as np
+
+
+document_template ={
+        "id": "document",
+        "version": "1.0"
+    }
 FWDs_template = {
         "id":"FWDs",
         "name":"FWDs",
@@ -97,6 +103,7 @@ def main(args):
             continue
         czml_dict[item['id']] = item
     FWDs =[]
+    FWDs.append(document_template)
     FWDs.append(FWDs_template)
     id_set = set()
     for item in czml_list:
