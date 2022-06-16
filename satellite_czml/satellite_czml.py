@@ -220,7 +220,7 @@ class satellite():
                        end_time=None,
                        interpolationAlgorithm = "LAGRANGE",
                        interpolationDegree = 5,
-                       referenceFrame = "INERTIAL",
+                       referenceFrame = "FIXED",
                        tle_object=None,
                        step=300, #second
                        rebuild=False):
