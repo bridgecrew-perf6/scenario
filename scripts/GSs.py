@@ -128,7 +128,7 @@ def main(args):
         gs.setLabel(name)
         GSs.append(gs.get_item())
 
-    dump_file = "GSs.czml"
+    dump_file = "{}_gss.czml".format(config['constellation']['name'])
     dict2json(dump_path / dump_file, GSs)
     print("--> at {}/{}".format(dump_path, dump_file))
 
