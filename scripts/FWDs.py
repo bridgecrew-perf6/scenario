@@ -59,10 +59,6 @@ class Forwarding:
                         None,
                         None
 
-
-
-
-
                     ]
                 }
             }

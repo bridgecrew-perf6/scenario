@@ -20,10 +20,13 @@ def main(args):
     print("\nSUMMARIZING...")
 
     const = json2dict(dump_path/"{}_const.czml".format(name))
-    isl = json2dict(dump_path/"{}_isl.czml".format(name))
-    fwd = json2dict(dump_path/"{}_fwd.czml".format(name))
+    # isl = json2dict(dump_path/"{}_isl.czml".format(name))
+    # fwd = json2dict(dump_path/"{}_fwd.czml".format(name))
+    gss = json2dict(dump_path/"{}_gss.czml".format(name))
+    gsl = json2dict(dump_path/"{}_gsl.czml".format(name))
 
-    sum = const+isl[1:]+fwd[1:]
+
+    sum = const+gss[1:]+gsl[1:]
     dict2json(dump_path/"{}.czml".format(name),sum)
     print("--> at {}/{}.czml".format(dump_path,name))
 

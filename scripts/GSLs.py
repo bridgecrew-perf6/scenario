@@ -120,7 +120,7 @@ def main(args):
             acc.range_log()
 
     # caculate all start,end stamp between sats and gss
-    acc.run()
+    # acc.run()
 
     access_stamps = acc.get_access_stamp()
     GSLs=[]
