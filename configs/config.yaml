@@ -1,6 +1,7 @@
 
+root: "/home/roit/aws/aprojects/constellation"
 
-dump_path: "/home/roit/datasets/cesiumData/12-12-0-15-53-4isl"
+dump_path: "/home/roit/datasets/cesiumData/20-20-0-15-53-4isl"
 
 start_time: [2000,1,1]
 end_time: [2000,1,2]
@@ -8,8 +9,8 @@ num_ISLs: 4
 constellation:
 
   name: "lite"
-  num_orbits: 12
-  num_sats_per_orbit: 12
+  num_orbits: 20
+  num_sats_per_orbit: 20
   phase_factor: 0
   eccentricity: 0.0000001
 #seed satellite
@@ -19,8 +20,10 @@ satellite:
   perigee_degree: 268.4266
   mean_anomaly_degree: 91.5750
   raan: 0
+GSL:
+  multiThreading: true
+  input_item_len: 30
 
-GSs:
-  path: "./GSs"
+GSs_path: "cities.txt"
 
 

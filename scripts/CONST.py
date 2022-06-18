@@ -56,7 +56,7 @@ def main(args):
                               orb_num=constellation['num_orbits'],
                               sat_num=constellation['num_sats_per_orbit'])
 
-    print("\nGENERATES CONSTELLATION...")
+    print("\nGENERATING CONSTELLATION...")
     print("--> duration:{} ->{}".format(datetime.datetime(*config['start_time']),datetime.datetime(*config['end_time'])))
     print("--> constellation args:\n \t number of orbit:{}, sat_per_orb:{},phase factor:{}".format(
         constellation['num_orbits'],

@@ -3,6 +3,7 @@ from utils.yaml_wrapper import YamlHandler
 import argparse
 import datetime
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 import os
 from path import Path
 from satgen import generate_tles_from_scratch_manual as args2tles
@@ -10,8 +11,9 @@ from utils.tool import json2dict,dict2json,to_csv,read_csv
 from satellite_czml import SatelliteCzml
 from utils.tool import readtles,list_filter
 from analysis.access import Access
-
-
+import threading
+from threading import Condition
+import time
 document_template ={
         "id": "document",
         "version": "1.0"
@@ -42,13 +44,21 @@ class GSL:
                 ],
                 "width": 2,
                 "material": {
-                    "solidColor": {
+                    "polylineDash": {
                         "color": {
                             "rgba": [
                                 0,
                                 0,
                                 255,
                                 255
+                            ]
+                        },
+                        "gapColor":{
+                            "rgba":[
+                                255,
+                                0,
+                                0,
+                                0
                             ]
                         }
                     }
@@ -79,15 +89,38 @@ class GSL:
     def add_availability(self,interval):
         self.template['availability'].append(interval)
 
+task_over_cnt=0
+def sub_task(sats,gss,acc_stamps):
+    global task_over_cnt
+    acc = Access()
+
+    for sat in sats:
+        acc.sat_with_gss(sat,gss)
+    acc_stamps.update(acc.get_access_stamp())
+    task_over_cnt+=1
+
+
+
+def input_split(sats,sub_sats_len):
+    nums_sub = int(len(sats) / sub_sats_len)
+    i = 0
+    split_sats = []
+    start = 0
+    while i <= nums_sub:
+        split_sats.append(sats[start:start+sub_sats_len])
+        start+=sub_sats_len
+        i+=1
+    return split_sats
+
 def main(args):
+    global task_over_cnt
     yml = YamlHandler(args.settings)
     config = yml.read_yaml()
     dump_path = Path(config["dump_path"])
     SATs_path = dump_path/"lite_const.czml"
     GSs_path = dump_path/"lite_gss.czml"
-
-    print("\nGSLs...")
-
+    multiThreading=config['GSL']['multiThreading']
+    print("\nGENERATING GSLs...")
     sats = json2dict(SATs_path)
     gss = json2dict(GSs_path)
 
@@ -107,26 +140,61 @@ def main(args):
     while -1 in gss:
         gss.remove(-1)
 
+    print("-> sats:{}, gss:{}".format(len(sats),len(gss)))
 
-    acc = Access()
+    print("-> stamps loging")
+    access_stamps={}
+    if multiThreading:
+        # multi-threading
+        input_item_len = config['GSL']['input_item_len']
 
-    for sat in sats:
-        acc.load_sat(sat)
-        for gs in gss:
-            acc.load_gs(gs)
+        ts=[]
+        t1 = time.perf_counter()
+
+        input_list = input_split(sats,input_item_len)
+        num_sub_task = len(input_list)
+        for input_item in input_list:
+            # acc.sat_with_gss(sat,gss)
+            ts.append( threading.Thread(target=sub_task,args=(input_item,gss,access_stamps)))
+
+        for t in ts:
+            t.start()
+
+        # for t in tqdm(ts):
+        print('-> waiting',end='')
+
+        while task_over_cnt < num_sub_task:
+            print('.',end='')
+
+            time.sleep(3)
+        t2=time.perf_counter()
+
+    else:
+        t1 = time.perf_counter()
+
+        acc = Access()
+        for sat in sats:
+            acc.sat_with_gss(sat,gss)
+
+        access_stamps = acc.get_access_stamp()
+        t2 = time.perf_counter()
 
 
-            # caculate range between sat,gs
-            acc.range_log()
+    print('\n-> log over,{:.2f} sec'.format(t2 - t1))
 
-    # caculate all start,end stamp between sats and gss
-    # acc.run()
+    print("-> total {} stamp pair".format(len(access_stamps)))
 
-    access_stamps = acc.get_access_stamp()
+    # write
+    print("-> stamps writing...")
+
+
     GSLs=[]
     GSLs.append(document_template)
     GSLs.append(GSLs_template)
+    
     start_stamp = datetime.datetime(2000,1,1,0,0,0).timestamp()
+    end_stamp = datetime.datetime(2000,1,2,0,0,0).timestamp()
+
     for k,v in access_stamps.items():
         gs,sat = k
         ref = ["{}#position".format(sat), "{}#position".format(gs)]
@@ -149,13 +217,19 @@ def main(args):
             # gsl.add_availability(inteval)
 
             pre_stamp = start_stamp+end
+        # add last false
+        start_utc = datetime.datetime.fromtimestamp(pre_stamp)
+        end_utc = datetime.datetime.fromtimestamp(end_stamp)
+        inteval = "{}T{}Z/{}T{}Z".format(start_utc.date(), start_utc.time(), end_utc.date(), end_utc.time())
+        gsl.add_interval(inteval, False)
+
 
         GSLs.append(gsl.get_item())
 
-    print("-> total {} access in".format(len(access_stamps)))
+    print("-> total {} visible arc segment".format(len(access_stamps)))
     dump_file = "{}_gsl.czml".format(config["constellation"]["name"])
     dict2json(dump_path / dump_file, GSLs)
-    print("--> at {}/{}".format(dump_path, dump_file))
+    print("-> at {}/{}".format(dump_path, dump_file))
 
     # build gsls
 

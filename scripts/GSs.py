@@ -98,11 +98,12 @@ def main(args):
     config = yml.read_yaml()
     dump_path = Path(config["dump_path"])
 
-    GSs_in = Path(config["GSs"]["path"])
+    GSs_in = Path(config["root"])/config['GSs_path']
 
-    print("\nGENERATES GSs...")
+    print("\nGENERATING GSs...")
 
     lines = readlines(GSs_in)
+    print("-> {} in total".format(len(lines)))
     GSs=[]
     GSs.append(document_template)
     GSs.append(GSs_template)
@@ -130,7 +131,7 @@ def main(args):
 
     dump_file = "{}_gss.czml".format(config['constellation']['name'])
     dict2json(dump_path / dump_file, GSs)
-    print("--> at {}/{}".format(dump_path, dump_file))
+    print("-> at {}/{}".format(dump_path, dump_file))
 
 
 def cartesian3(longitude,latitude):

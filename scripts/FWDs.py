@@ -88,7 +88,7 @@ def main(args):
     start_time = datetime.datetime(*config["start_time"])
     end_time = datetime.datetime(*config["end_time"])
 
-    print("\nGENERATES FWDs...")
+    print("\nGENERATING FWDs...")
     inFile = Path(dump_path)/"{}_isl.czml".format(constellation['name'])
 
 

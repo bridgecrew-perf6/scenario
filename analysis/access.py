@@ -45,9 +45,10 @@ class Access:
         # self.gs_position_homo = [self.gs_position] * 293
         # self.gs_position_homo = np.array(self.gs_position_homo)
         self.gs_id = gs['id']
+
     def range_log(self):
-        if self.sat_id == '00200' and self.gs_id == 'London':
-            print('ok')
+
+
         full_time = np.linspace(start=0, stop=86400, num=86401)
 
         fullx = self.sat_fx(full_time)
@@ -91,30 +92,12 @@ class Access:
         pass
         #TODO
 
-    def run(self):
-        x = np.linspace(start=0, stop=86400, num=86401)
-        # y = np.interp(x, self.df.index, self.ranges[('00903', 'London')])
-        self.access_stamp={}
-        for k,v in self.ranges.items():
-            f = interp(self.timeStamps,v,'cubic')
-            y = f(x)
+    def sat_with_gss(self,sat,gss):
+        self.load_sat(sat)
+        for gs in gss:
+            self.load_gs(gs)
 
-            mask = np.int8(y < self.borderDistance)
-            mask = mask[:-1] - mask[1:]
-            start_mask = mask==-1
-            end_mask = mask ==1
-            starts = list(x[:-1][start_mask])
-            ends = list(x[:-1][end_mask])
-
-            if len(starts) < len(ends):#开始即接入
-                starts.insert(0,0)
-            elif len(starts)>len(ends):#结束还在接入
-                ends.append(86400)
-
-            starts= np.expand_dims(np.array(starts), 0)
-            ends = np.expand_dims(np.array(ends), 0)
-
-            self.access_stamp[k] = np.concatenate([starts,ends],0).T
-
+            # caculate range between sat,gs
+            self.range_log()
     def get_access_stamp(self):
         return self.access_stamp
