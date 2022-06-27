@@ -97,7 +97,7 @@ class ISL:
             self.template["polyline"]["material"]["polylineGlow"]["color"]["rgba"] = rgba
 
     def setTime(self,start_time,end_time):
-        interval = start_time.isoformat() + "/" + end_time.isoformat()
+        interval = start_time.isoformat()+"Z" + "/" + end_time.isoformat()+"Z"
 
         self.template["availability"]=[interval]
         self.template["polyline"]["show"][0]["interval"] = interval
