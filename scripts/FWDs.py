@@ -69,7 +69,7 @@ class Forwarding:
         self.template["description"] = description
         self.template["polyline"]["positions"]["references"] = ref
     def setTime(self,start_time,end_time):
-        interval = start_time.isoformat() + "/" + end_time.isoformat()
+        interval = start_time.isoformat()+"Z" + "/" + end_time.isoformat()+"Z"
 
         self.template["availability"]=[interval]
         self.template["polyline"]["show"][0]["interval"] = interval
@@ -85,8 +85,8 @@ def main(args):
     dump_path = Path(config["dump_path"])
     constellation = config['constellation']
 
-    start_time = datetime.datetime(*config["start_time"])
-    end_time = datetime.datetime(*config["end_time"])
+    start_time = datetime.datetime.strptime(config['start_time'], '%Y-%m-%dT%H:%M:%SZ')
+    end_time = datetime.datetime.strptime(config['end_time'], '%Y-%m-%dT%H:%M:%SZ')
 
     print("\nGENERATING FWDs...")
     inFile = Path(dump_path)/"{}_isl.czml".format(constellation['name'])

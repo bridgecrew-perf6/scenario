@@ -236,8 +236,8 @@ def main(args):
     num_sat = constellation['num_sats_per_orbit']
     num_ISLs = config['num_ISLs']
 
-    start_time = datetime.datetime(*config["start_time"])
-    end_time = datetime.datetime(*config["end_time"])
+    start_time = datetime.datetime.strptime(config['start_time'], '%Y-%m-%dT%H:%M:%SZ')
+    end_time = datetime.datetime.strptime(config['end_time'], '%Y-%m-%dT%H:%M:%SZ')
 
     print("\nGENERATES ISLs...")
     inFile = Path(dump_path)/"{}_const.czml".format(constellation['name'])
@@ -268,6 +268,7 @@ def main(args):
 
 
 # construct ISLs file
+    intralCnt=0
     for (sati,satj) in adj_mat:
         name = "ISL-{}-{}".format(sati,satj)
         id = "ISL-{}-{}".format(sati,satj)
@@ -278,9 +279,10 @@ def main(args):
         if not isIntraOrbit(sati,satj):
             isl.setLine()
             isl.setParent()
+            intralCnt+=1
         isl.setTime(start_time,end_time)
         ISLs_list.append(isl.get_item())
-    print("number of ISLs:{}".format(len(ISLs_list)))
+    print("number of ISLs, intral:{}, inter:{}, total:{}".format(intralCnt,len(ISLs_list)-intralCnt,len(ISLs_list)))
     dump_file = "{}_isl.czml".format(constellation["name"])
     dict2json(dump_path/dump_file,ISLs_list)
     print("--> at {}/{}".format(dump_path,dump_file))

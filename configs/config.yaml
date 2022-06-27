@@ -1,16 +1,16 @@
 
-root: "/home/roit/aws/aprojects/constellation"
+root: "/home/roit/aws/aprojects/scenario"
 
-dump_path: "/home/roit/datasets/cesiumData/20-20-0-15-53-4isl"
+dump_path: "/home/roit/datasets/cesiumData/40-40-0-15-53-4isl"
 
-start_time: [2000,1,1]
-end_time: [2000,1,2]
+start_time: "2000-01-01T00:00:00Z"
+end_time: "2000-01-02T00:00:00Z"
 num_ISLs: 4
 constellation:
 
   name: "lite"
-  num_orbits: 20
-  num_sats_per_orbit: 20
+  num_orbits: 40
+  num_sats_per_orbit: 40
   phase_factor: 0
   eccentricity: 0.0000001
 #seed satellite

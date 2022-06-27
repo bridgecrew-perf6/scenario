@@ -182,7 +182,7 @@ def main(args):
 
     print('\n-> log over,{:.2f} sec'.format(t2 - t1))
 
-    print("-> total {} stamp pair".format(len(access_stamps)))
+    # print("-> total {} stamp pair".format(len(access_stamps)))
 
     # write
     print("-> stamps writing...")
@@ -191,9 +191,9 @@ def main(args):
     GSLs=[]
     GSLs.append(document_template)
     GSLs.append(GSLs_template)
-    
-    start_stamp = datetime.datetime(2000,1,1,0,0,0).timestamp()
-    end_stamp = datetime.datetime(2000,1,2,0,0,0).timestamp()
+
+    start_stamp = datetime.datetime.strptime(config['start_time'], '%Y-%m-%dT%H:%M:%SZ').timestamp()
+    end_stamp = datetime.datetime.strptime(config['end_time'], '%Y-%m-%dT%H:%M:%SZ').timestamp()
 
     for k,v in access_stamps.items():
         gs,sat = k
