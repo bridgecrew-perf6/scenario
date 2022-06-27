@@ -51,13 +51,13 @@ def main(args):
 
     lines = readtles(tle_file_path)
     container = SatelliteCzml(tle_list=lines,
-                              start_time= datetime.datetime(*config['start_time']),
-                              end_time=datetime.datetime(*config['end_time']),
+                              start_time= datetime.datetime.strptime(config['start_time'], '%Y-%m-%dT%H:%M:%SZ'),
+                              end_time=datetime.datetime.strptime(config['end_time'], '%Y-%m-%dT%H:%M:%SZ'),
                               orb_num=constellation['num_orbits'],
                               sat_num=constellation['num_sats_per_orbit'])
 
     print("\nGENERATING CONSTELLATION...")
-    print("--> duration:{} ->{}".format(datetime.datetime(*config['start_time']),datetime.datetime(*config['end_time'])))
+    print("--> duration:{} -> {}".format(config['start_time'],config['end_time']))
     print("--> constellation args:\n \t number of orbit:{}, sat_per_orb:{},phase factor:{}".format(
         constellation['num_orbits'],
         constellation['num_sats_per_orbit'],
