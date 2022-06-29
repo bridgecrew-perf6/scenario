@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import os
 from path import Path
 from utils.tool import readlines,dict2json
+from utils.formatter import cartesian3
 import math
 
 document_template ={
@@ -83,7 +84,7 @@ class GroundStation:
     def setLabel(self,text):
         self.template['label']['text'] = text
     def setTime(self,start_time,end_time):
-        interval = start_time.isoformat() + "/" + end_time.isoformat()
+        interval = start_time.isoformat() +"Z"+ "/" + end_time.isoformat()+"Z"
 
         self.template["availability"]=[interval]
         self.template["polyline"]["show"][0]["interval"] = interval
@@ -134,16 +135,7 @@ def main(args):
     print("-> at {}/{}".format(dump_path, dump_file))
 
 
-def cartesian3(longitude,latitude):
-    longitude = math.radians(longitude)
-    latitude = math.radians(latitude)
 
-
-    R = 6378137.0   # relative to centre of the earth
-    X = R * math.cos(latitude) * math.cos(longitude)
-    Y = R * math.cos(latitude) * math.sin(longitude)
-    Z = R * math.sin(latitude)
-    return  [X,Y,Z]
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="constellation-information")

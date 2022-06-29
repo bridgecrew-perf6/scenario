@@ -4,6 +4,7 @@ import time
 import numpy as np
 import random
 import pandas as pd
+import math
 def time_stat(last_end):
     end = time.time()
     running_time = end - last_end
@@ -57,3 +58,7 @@ def list_filter(lines,perc=0.1):
     length = len(lines)
     length = int(length*perc)
     return lines[:length]
+
+
+
+

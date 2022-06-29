@@ -19,8 +19,8 @@ document_template ={
         "version": "1.0"
     }
 GSLs_template = {
-        "id":"GSs",
-        "name":"GSs",
+        "id":"GSLs",
+        "name":"GSLs",
         "description":"collection of GSs",
         "parent": "root"
 
@@ -177,6 +177,7 @@ def main(args):
             acc.sat_with_gss(sat,gss)
 
         access_stamps = acc.get_access_stamp()
+
         t2 = time.perf_counter()
 
 
