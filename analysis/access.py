@@ -1,3 +1,10 @@
+'''
+Author: Wang Xt
+implement association between satellite and ground-station/aerocraft.
+The code is a little bit of shit mountain, but works fine. Hope improve it later.
+'''
+
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
