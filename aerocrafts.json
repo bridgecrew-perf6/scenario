@@ -1,0 +1,10 @@
+[
+  {
+    "name": "AC-000",
+    "duration_sec": 1000,
+    "path": ["45N,127E","43N,151E", "41N,168W","37N,139W","33N,118W"],
+    "model_path": "../data/launchvehicle.glb",
+    "start": "2000-01-01T00:00:00Z",
+    "end": "2000-01-01T00:10:00Z"
+  }
+]
