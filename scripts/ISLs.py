@@ -106,124 +106,30 @@ class ISL:
 
 
 
-def sameOrbitSats(sat_id,num_orbit,num_sat):
-    same_orbit_sats=[]
-    sat = int(sat_id[3:5])
-    orbit= int(sat_id[1:3])
-    shell=0
-
-    sats = [(sat - 1) % num_sat, (sat + 1) % num_sat]
-    orbits = [orbit]
-
-    for orb in orbits:
-        for sat in sats:
-            tmp = "{}{:02d}{:02d}".format(shell, orb, sat)
-            same_orbit_sats.append(tmp)
 
 
-    return same_orbit_sats
+def adjacent_sats(sat,num_orbit,num_sat,inter_link_deltas,intral_link_deltas):
+    intral_link_deltas = intral_link_deltas
+    shell_no = int(sat[0])
+    this_orbit_no = int(sat[1:3])
+    this_sat_no = int(sat[3:5])
 
 
-def sideSats(sat_id,num_orbit,num_sat):
-    side_sats=[]
-    orbit = int(sat_id[1:3])
-    shell = 0
-    sats = list(range(0, num_sat))
-    # sats = [(sat-1)%num_sat,sat,(sat+1)%num_sat]
+    adj_intral_orbit_sat_no = []
+    adj_inter_orbit_sat_no = []
+    for delta in intral_link_deltas:
+        adj_intral_orbit_sat_no.append((delta+this_sat_no)%num_sat)
+    for delta in inter_link_deltas:
+        adj_inter_orbit_sat_no.append((delta + this_sat_no)%num_sat)
 
-    orbits = [(orbit - 1) % num_orbit,  (orbit + 1) % num_orbit]
-    for orb in orbits:
-        for sat in sats:
-            tmp = "{}{:02d}{:02d}".format(shell, orb, sat)
-            side_sats.append(tmp)
-
-    return side_sats
-
-
-def cadidate_sats(sat_id,num_orbit,num_sat):
-    "based on name search, only works for 0 phase factor constellation"
-    los =[]
-    shell = sat_id[0]
-    orbit= int(sat_id[1:3])
-    sat = int(sat_id[3:5])
-
-    # sats = [(sat-1)%num_sat,sat,(sat+1)%num_sat]
-    sats = list(range(0,num_sat))
-    orbits = [(orbit-1)%num_orbit,orbit,(orbit+1)%num_orbit]
-    for orb in orbits:
-        for sat in sats:
-            tmp = "{}{:02d}{:02d}".format(shell,orb,sat)
-            if tmp !=sat_id:
-                los.append(tmp)
-
-    return  los
-
-def LoS_rel(sat_id):
-    pass
-
-def last_duration():
-
-    return  [20,50]
-
-positions={}
-def distance(sat1,sat2,duration):
-    sat1_position = positions[sat1][duration[0]:duration[1]][:,1:]
-    sat2_position = positions[sat2][duration[0]:duration[1]][:,1:]
-    avg_dis = np.abs(sat1_position-sat2_position)**2
-    avg_dis = avg_dis.sum(1).mean()
-    return avg_dis
-
-
-def makeISLs(sat,num_orbit,num_sat,num_ISLs):
-    duration = last_duration()
-
-
-    same_orbit_sats = sameOrbitSats(sat,num_orbit,num_sat)
-    side_sats = sideSats(sat,num_orbit,num_sat)
-
-
-    dises ={}
-    for adj in side_sats:
-        dises[adj] = distance(sat,adj,duration)
-    adjs = sorted(dises, key=lambda k: dises[k])
-
-    if num_ISLs ==4:
-        return same_orbit_sats+adjs[:2]
-    elif num_ISLs ==6:
-        return same_orbit_sats+adjs[:4]
-
-def crossed(sat,adjs):
-    "based on name search, only works for 0 phase factor constellation"
-    mask =[]
-
-    for item in adjs:
-        # same orbit
-        if sat[1:3] == item[1:3]:
-            mask.append(True)
-        #nearly side link
-        elif sat[-2:] ==item[-2:]:
-            mask.append(True)
-        else:
-            mask.append(False)
-
-
-    return list(np.array(adjs)[np.array(mask)])
-
-def isIntraOrbit(sati,satj):
-    if sati[1:3] == satj[1:3]:
-        return True
-    else:
-        return False
-def isInterSide(sati,satj):
-    if sati[-2:] == satj[-2:]:
-        return True
-    else:
-        return False
-def notInterSide(sati,satj):
-    if sati[-2:] != satj[-2:] and  sati[1:3] != satj[1:3]:
-        return True
-    else:
-        return False
+    next_orbit_no = (this_orbit_no+1)%num_orbit
+    adj_sats = []
+    for no in adj_intral_orbit_sat_no:
+        adj_sats.append("{:01d}{:02d}{:02d}".format(shell_no,this_orbit_no,no))
+    
+    for no in adj_inter_orbit_sat_no:
+        adj_sats.append("{:01d}{:02d}{:02d}".format(shell_no,next_orbit_no,no))
+    return adj_sats
 
 
 def main(args):
@@ -234,7 +140,10 @@ def main(args):
     constellation = config['constellation']
     num_orbit= constellation['num_orbits']
     num_sat = constellation['num_sats_per_orbit']
-    num_ISLs = config['num_ISLs']
+
+    intral_link_deltas = config['ISL']['intral_link_deltas']
+    inter_link_deltas = config['ISL']['inter_link_deltas']
+
 
     start_time = datetime.datetime.strptime(config['start_time'], '%Y-%m-%dT%H:%M:%SZ')
     end_time = datetime.datetime.strptime(config['end_time'], '%Y-%m-%dT%H:%M:%SZ')
@@ -242,7 +151,7 @@ def main(args):
     print("\nGENERATES ISLs...")
     inFile = Path(dump_path)/"{}_const.czml".format(constellation['name'])
 
-
+    side_link = [0]
     czml = json2dict(inFile)
     czml_dict={}
     for item in czml:
@@ -254,8 +163,8 @@ def main(args):
 
     adj_mat=set()
     for sat in sats:
-        ISLs = makeISLs(sat,num_orbit,num_sat,num_ISLs)
-        for adj_sat in ISLs:
+        adj_sats = adjacent_sats(sat,num_orbit,num_sat,inter_link_deltas=inter_link_deltas,intral_link_deltas=intral_link_deltas)
+        for adj_sat in adj_sats:
             if (sat,adj_sat) in adj_mat or (adj_sat,sat) in adj_mat:
                 continue
             adj_mat.add((sat, adj_sat))
@@ -276,7 +185,7 @@ def main(args):
         ref = ["{}#position".format(sati),"{}#position".format(satj)]
 
         isl = ISL(name=name,id=id,description=description,ref=ref)
-        if not isIntraOrbit(sati,satj):
+        if sati[1:3] != satj[1:3]:# not in same orbit
             isl.setLine()
             isl.setParent()
             intralCnt+=1
